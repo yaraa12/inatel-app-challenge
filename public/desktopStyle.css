@@ -218,4 +218,10 @@ div.testGroup {
 
 .footer a {
     text-decoration: none;
+    color: #202020;
+    font-weight: bolder;
+}
+
+.footer a:visited {
+    color: #202020;
 }
