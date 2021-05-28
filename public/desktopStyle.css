@@ -15,12 +15,37 @@ h1 {
     color: #5a5a5a;
 }
 
+.holdFlags {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1em;
+    padding-top: 1em;
+}
+
+.flags {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flags img {
+    width: 2.5em;
+    padding: 0.5em;
+    cursor: pointer;
+}
+
+.flags input[type="radio"] {
+    display: none;
+}
+
 .switchWrapper {
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0;
-    margin-bottom: 2em;
+    margin-bottom: 1em;
+    clear: both;
 }
 
 .switchLabel {
@@ -95,11 +120,38 @@ input:checked+.slider:before {
     border-radius: 50%;
 }
 
-#startStopBtn {
+#startStopBtn:hover {
+    box-shadow: 0 0 2em rgba(0, 0, 0, 0.1), inset 0 0 1em rgba(0, 0, 0, 0.1);
+}
+
+#startStopBtn.running {
     display: inline-block;
     margin: 0 auto;
-    color: #6060AA;
-    background-color: rgba(0, 0, 0, 0);
+    background-color: #FF3030;
+    border-color: #FF6060;
+    color: #FFFFFF;
+    border-radius: 0.3em;
+    transition: all 0.3s;
+    box-sizing: border-box;
+    width: 8em;
+    height: 3em;
+    line-height: 2.7em;
+    cursor: pointer;
+}
+
+#startStopBtn:before {
+    content: "Start";
+}
+
+#startStopBtn.running:before {
+    content: "Abort";
+}
+
+.stoppedDarkMode {
+    display: inline-block;
+    margin: 0 auto;
+    color: #eee;
+    background-color: #6060FF;
     border: 0.15em solid #6060FF;
     border-radius: 0.3em;
     transition: all 0.3s;
@@ -111,22 +163,20 @@ input:checked+.slider:before {
     box-shadow: 0 0 0 rgba(0, 0, 0, 0.1), inset 0 0 0 rgba(0, 0, 0, 0.1);
 }
 
-#startStopBtn:hover {
-    box-shadow: 0 0 2em rgba(0, 0, 0, 0.1), inset 0 0 1em rgba(0, 0, 0, 0.1);
-}
-
-#startStopBtn.running {
-    background-color: #FF3030;
-    border-color: #FF6060;
-    color: #FFFFFF;
-}
-
-#startStopBtn:before {
-    content: "Start";
-}
-
-#startStopBtn.running:before {
-    content: "Abort";
+.stoppedLightMode {
+    display: inline-block;
+    margin: 0 auto;
+    color: #6060FF;
+    background-color: rgba(0, 0, 0, 0);
+    border: 0.15em solid #6060FF;
+    border-radius: 0.3em;
+    transition: all 0.3s;
+    box-sizing: border-box;
+    width: 8em;
+    height: 3em;
+    line-height: 2.7em;
+    cursor: pointer;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.1), inset 0 0 0 rgba(0, 0, 0, 0.1);
 }
 
 #test {
@@ -212,8 +262,8 @@ div.testGroup {
 
 .footer {
     display: block;
-    padding: 2em;
-    margin-bottom: 2em;
+    padding: 1em;
+    margin-bottom: 1em;
 }
 
 .footer a {
