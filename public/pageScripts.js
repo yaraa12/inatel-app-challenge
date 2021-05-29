@@ -1,5 +1,3 @@
-//import { getLanguages } from "./languages";
-
 function I(i) {
     return document.getElementById(i);
 }
@@ -54,37 +52,55 @@ function format(d) {
 //UI CODE
 var uiData = null;
 
-var darkModePage = false; // checks if this page is darkmode or not
-
-function getDarkMode(darkMode) {
-    if (darkMode) {
-        darkModePage = true;
-    }
-}
-
 function startStop() {
     if (s.getState() == 3) {
         //speedtest is running, abort
         s.abort();
         data = null;
         if (darkModePage) {
-            I("startStopBtn").className = "stoppedDarkMode"; // return the element with this parameter
+            let startStopButton = I("startStopBtn");
+            startStopButton.className = "stoppedDarkMode"; // return the element with this parameter
+            if (pageLanguage === "pt-br") {
+                startStopButton.innerHTML = allTranslations.langStart.pt_br.valueOf();
+            } else {
+                startStopButton.innerHTML = allTranslations.langStart.eng.valueOf();
+            }
         } else {
             I("startStopBtn").className = "stoppedLightMode"; // return the element with this parameter
+            if (pageLanguage === "pt-br") {
+                startStopButton.innerHTML = allTranslations.langStart.pt_br.valueOf();
+            } else {
+                startStopButton.innerHTML = allTranslations.langStart.eng.valueOf();
+            }
         }
         initUI();
     } else {
         //test is not running, begin
         let startStopBtn = I("startStopBtn");
         startStopBtn.className = "running"; // the button turns into running mode
+        if (pageLanguage === "pt-br") {
+            startStopBtn.innerHTML = allTranslations.langAbort.pt_br.valueOf();
+        } else {
+            startStopBtn.innerHTML = allTranslations.langAbort.eng.valueOf();
+        }
         s.onupdate = function(data) {
             uiData = data; //on each speedtest update the uiData gets the data
         };
         s.onend = function(aborted) {
             if (darkModePage) {
                 I("startStopBtn").className = "stoppedDarkMode";
+                if (pageLanguage === "pt-br") {
+                    startStopBtn.innerHTML = allTranslations.langStart.pt_br.valueOf();
+                } else {
+                    startStopBtn.innerHTML = allTranslations.langStart.eng.valueOf();
+                }
             } else {
                 I("startStopBtn").className = "stoppedLightMode";
+                if (pageLanguage === "pt-br") {
+                    startStopBtn.innerHTML = allTranslations.langStart.pt_br.valueOf();
+                } else {
+                    startStopBtn.innerHTML = allTranslations.langStart.eng.valueOf();
+                }
             }
 
             updateUI(true);
@@ -130,10 +146,21 @@ function initUI() {
     I("ip").textContent = "";
 }
 
+
 /* Dark mode ON/OF switch command and colors*/
-let checkbox = document.getElementById("switchButton");
+
+var darkModePage = false; // checks if this page is darkmode or not
+
+function getDarkMode(darkMode) { //turns the page to dark mode
+    if (darkMode) {
+        darkModePage = true;
+    }
+}
+
+let checkbox = document.getElementById("switchButton"); //event listner to turn the page dark
 checkbox.addEventListener('change', function() {
     if (this.checked) {
+        getDarkMode(true); //turns the knowledge of the page to dark mode
         let darkModeDocument = document.getElementsByTagName("body")[0];
         darkModeDocument.style.backgroundColor = "#222222";
         darkModeDocument.style.color = "#ddd";
@@ -141,11 +168,11 @@ checkbox.addEventListener('change', function() {
         for (let index = 0; index < links.length; index++) {
             links[index].style.color = "#ddd";
         }
-        getDarkMode(true); //turns the knowledge of the page to dark mode
         let startButton = I("startStopBtn");
-        startButton.className = "stoppedDarkMode";
+        startButton.className = "stoppedDarkMode startText"; //turn button to darkmode before hitting it
 
     } else {
+        getDarkMode(false); // turns the knowloedge of the page to light mode
         var darkModeDocument = document.getElementsByTagName("body")[0];
         darkModeDocument.style.backgroundColor = "#eee";
         darkModeDocument.style.color = "#000";
@@ -153,36 +180,47 @@ checkbox.addEventListener('change', function() {
         for (let index = 0; index < links.length; index++) {
             links[index].style.color = "#000";
         }
-        getDarkMode(false); // turns the knowloedge of the page to light mode
         let startButton = I("startStopBtn");
-        startButton.className = "stoppedLightMode";
+        startButton.className = "stoppedLightMode startText";
     }
 });
 
 var languagesAvaliable = document.getElementsByName('flags'); //languages avaliable in the page
 
-/*var allTranslations = getLanguages();
-console.log(allTranslations)*/
-//var translations = getLanguages();
-
+var allTranslations = getLanguages(); //getes the translations int the languages script
 var pageLanguage = "pt-br"; // initializes the page in pt-br
-var brazilianFlag = document.getElementById("brazilianFlagImage");
-brazilianFlag.style.filter = "saturate(400%)";
-for (let index = 0; index < languagesAvaliable.length; index++) {
+
+var brazilianFlag = document.getElementById("brazilianFlagImage"); //gets the brazilian flag
+brazilianFlag.style.filter = "saturate(300%)"; //makes it visible default
+var americanFlag = document.getElementById("americanFlagImage"); //gets the american flag
+americanFlag.style.filter = "saturate(50%)";
+
+for (let index = 0; index < languagesAvaliable.length; index++) { // event lister to check the page language
     languagesAvaliable[index].addEventListener("change", function() { //checks for user language
         pageLanguage = languagesAvaliable[index].value;
         if (pageLanguage == "pt-br") {
-            let brazilianFlag = document.getElementById("brazilianFlagImage");
-            brazilianFlag.style.filter = "saturate(400%)";
-            let americanFlag = document.getElementById("americanFlagImage");
-            americanFlag.style.filter = "saturate(100%)";
+            brazilianFlag.style.filter = "saturate(300%)"; //turns brazilian flag as default
+            americanFlag.style.filter = "saturate(50%)";
             let switchLabel = document.getElementById("switchLabel");
+            switchLabel.innerHTML = allTranslations.langDarkMode.pt_br.valueOf(); //translates dark mode label
+            let startStopBtn = I("startStopBtn");
+            startStopBtn.innerHTML = allTranslations.langStart.pt_br.valueOf(); //on opening the page translates the button
+            let sourceCodeLink = I("sourceCodeLink");
+            sourceCodeLink.innerHTML = allTranslations.langSourceCode.pt_br.valueOf(); //translates the source code link
+            let mainTitle = I("mainTitle");
+            mainTitle.innerHTML = allTranslations.langSpeedTest.pt_br.valueOf();
+        } else {
+            americanFlag.style.filter = "saturate(300%)"; //turns american flag as default
+            brazilianFlag.style.filter = "saturate(50%)";
+            let switchLabel = document.getElementById("switchLabel");
+            switchLabel.innerHTML = allTranslations.langDarkMode.eng.valueOf(); //translates dark mode label
+            let startStopBtn = I("startStopBtn");
+            startStopBtn.innerHTML = allTranslations.langStart.eng.valueOf(); //on opening the page
+            let sourceCodeLink = I("sourceCodeLink");
+            sourceCodeLink.innerHTML = allTranslations.langSourceCode.eng.valueOf();
 
-        } else if (pageLanguage == "eng") {
-            var americanFlag = document.getElementById("americanFlagImage");
-            americanFlag.style.filter = "saturate(400%)";
-            var brazilianFlag = document.getElementById("brazilianFlagImage");
-            brazilianFlag.style.filter = "saturate(100%)"
+            let mainTitle = I("mainTitle");
+            mainTitle.innerHTML = allTranslations.langSpeedTest.eng.valueOf();
         }
     })
 }

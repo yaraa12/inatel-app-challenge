@@ -139,13 +139,15 @@ input:checked+.slider:before {
     cursor: pointer;
 }
 
-#startStopBtn:before {
-    content: "Start";
-}
 
-#startStopBtn.running:before {
+/*#startStopBtn:before {
+    content: "Start";
+}*/
+
+
+/*#startStopBtn.running:before {
     content: "Abort";
-}
+}*/
 
 .stoppedDarkMode {
     display: inline-block;
@@ -267,7 +269,6 @@ div.testGroup {
 }
 
 .footer a {
-    text-decoration: none;
     color: #202020;
     font-weight: bolder;
 }
