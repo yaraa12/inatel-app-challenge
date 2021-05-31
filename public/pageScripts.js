@@ -49,6 +49,7 @@ function format(d) {
     return d.toFixed(0);
 }
 
+
 //UI CODE
 var uiData = null;
 
@@ -57,6 +58,7 @@ function startStop() {
         //speedtest is running, abort
         s.abort();
         data = null;
+
         if (darkModePage) {
             let startStopButton = I("startStopBtn");
             startStopButton.className = "stoppedDarkMode"; // return the element with this parameter
@@ -66,7 +68,8 @@ function startStop() {
                 startStopButton.innerHTML = allTranslations.langStart.eng.valueOf();
             }
         } else {
-            I("startStopBtn").className = "stoppedLightMode"; // return the element with this parameter
+            let startStopButton = I("startStopBtn");
+            startStopButton.className = "stoppedLightMode"; // return the element with this parameter
             if (pageLanguage === "pt-br") {
                 startStopButton.innerHTML = allTranslations.langStart.pt_br.valueOf();
             } else {
@@ -115,9 +118,12 @@ function updateUI(forced) {
     var status = uiData.testState;
     I("ip").textContent = uiData.clientIp;
     I("dlText").textContent = (status == 1 && uiData.dlStatus == 0) ? "..." : format(uiData.dlStatus);
+
     drawMeter(I("dlMeter"), mbpsToAmount(Number(uiData.dlStatus * (status == 1 ? oscillate() : 1))), meterBk, dlColor, Number(uiData.dlProgress), progColor);
+
     I("ulText").textContent = (status == 3 && uiData.ulStatus == 0) ? "..." : format(uiData.ulStatus);
     drawMeter(I("ulMeter"), mbpsToAmount(Number(uiData.ulStatus * (status == 3 ? oscillate() : 1))), meterBk, ulColor, Number(uiData.ulProgress), progColor);
+
     I("pingText").textContent = format(uiData.pingStatus);
     I("jitText").textContent = format(uiData.jitterStatus);
 }
@@ -129,6 +135,7 @@ function oscillate() {
 window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || (function(callback, element) {
     setTimeout(callback, 1000 / 60);
 });
+
 
 function frame() {
     requestAnimationFrame(frame);
@@ -145,6 +152,10 @@ function initUI() {
     I("jitText").textContent = "";
     I("ip").textContent = "";
 }
+setTimeout(function() {
+    initUI()
+}, 100);
+
 
 
 /* Dark mode ON/OF switch command and colors*/
@@ -172,7 +183,7 @@ checkbox.addEventListener('change', function() {
         startButton.className = "stoppedDarkMode startText"; //turn button to darkmode before hitting it
 
     } else {
-        getDarkMode(false); // turns the knowloedge of the page to light mode
+        getDarkMode(false); // turns the knowledge of the page to light mode
         var darkModeDocument = document.getElementsByTagName("body")[0];
         darkModeDocument.style.backgroundColor = "#eee";
         darkModeDocument.style.color = "#000";
@@ -201,30 +212,29 @@ for (let index = 0; index < languagesAvaliable.length; index++) { // event liste
         if (pageLanguage == "pt-br") {
             brazilianFlag.style.filter = "saturate(300%)"; //turns brazilian flag as default
             americanFlag.style.filter = "saturate(50%)";
+            let mainTitle = I("mainTitle");
+            mainTitle.innerHTML = allTranslations.langSpeedTest.pt_br.valueOf();
             let switchLabel = document.getElementById("switchLabel");
             switchLabel.innerHTML = allTranslations.langDarkMode.pt_br.valueOf(); //translates dark mode label
             let startStopBtn = I("startStopBtn");
             startStopBtn.innerHTML = allTranslations.langStart.pt_br.valueOf(); //on opening the page translates the button
             let sourceCodeLink = I("sourceCodeLink");
             sourceCodeLink.innerHTML = allTranslations.langSourceCode.pt_br.valueOf(); //translates the source code link
-            let mainTitle = I("mainTitle");
-            mainTitle.innerHTML = allTranslations.langSpeedTest.pt_br.valueOf();
+            let historyTitle = I("historyTitle");
+            historyTitle.innerHTML = allTranslations.langConnectionHistory.pt_br.valueOf();
         } else {
             americanFlag.style.filter = "saturate(300%)"; //turns american flag as default
             brazilianFlag.style.filter = "saturate(50%)";
+            let mainTitle = I("mainTitle");
+            mainTitle.innerHTML = allTranslations.langSpeedTest.eng.valueOf();
             let switchLabel = document.getElementById("switchLabel");
             switchLabel.innerHTML = allTranslations.langDarkMode.eng.valueOf(); //translates dark mode label
             let startStopBtn = I("startStopBtn");
             startStopBtn.innerHTML = allTranslations.langStart.eng.valueOf(); //on opening the page
             let sourceCodeLink = I("sourceCodeLink");
             sourceCodeLink.innerHTML = allTranslations.langSourceCode.eng.valueOf();
-
-            let mainTitle = I("mainTitle");
-            mainTitle.innerHTML = allTranslations.langSpeedTest.eng.valueOf();
+            let historyTitle = I("historyTitle");
+            historyTitle.innerHTML = allTranslations.langConnectionHistory.eng.valueOf();
         }
     })
 }
-
-setTimeout(function() {
-    initUI()
-}, 100);

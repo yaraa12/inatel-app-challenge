@@ -120,6 +120,10 @@ input:checked+.slider:before {
     border-radius: 50%;
 }
 
+#mainTitle {
+    margin-bottom: 1em;
+}
+
 #startStopBtn:hover {
     box-shadow: 0 0 2em rgba(0, 0, 0, 0.1), inset 0 0 1em rgba(0, 0, 0, 0.1);
 }
@@ -260,6 +264,24 @@ div.testArea canvas {
 div.testGroup {
     display: block;
     margin: 0 auto;
+}
+
+.historyTable {
+    margin-top: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.historyTable table {
+    width: 40%;
+    border-collapse: collapse;
+}
+
+.historyTable th,
+td {
+    border: 0.2em solid #222;
+    margin: 0;
 }
 
 .footer {
