@@ -1,6 +1,3 @@
-function I(i) {
-    return document.getElementById(i);
-}
 //INITIALIZE SPEEDTEST
 var s = new Speedtest(); //create speedtest object
 
@@ -8,6 +5,17 @@ var meterBk = /Trident.*rv:(\d+\.\d+)/i.test(navigator.userAgent) ? "#EAEAEA" : 
 var dlColor = "#6060AA",
     ulColor = "#616161";
 var progColor = meterBk;
+
+var speedValues = { downloadSpeed: "", uploadSpeed: "", clientId: " " };
+var clientIdToGetHistory = { clientId: "" };
+var downloadSpeed;
+var uploadSpeed;
+var pageClientId = " ";
+var valuesToSetInHistory = [];
+
+function I(i) {
+    return document.getElementById(i);
+}
 
 //CODE FOR GAUGES
 function drawMeter(c, amount, bk, fg, progress, prog) {
@@ -58,10 +66,9 @@ function startStop() {
         //speedtest is running, abort
         s.abort();
         data = null;
-
         if (darkModePage) {
             let startStopButton = I("startStopBtn");
-            startStopButton.className = "startButton"; // return the element with this parameter
+            startStopButton.className = "startDarkMode";
             if (pageLanguage === "pt-br") {
                 startStopButton.innerHTML = allTranslations.langStart.pt_br.valueOf();
             } else {
@@ -69,7 +76,7 @@ function startStop() {
             }
         } else {
             let startStopButton = I("startStopBtn");
-            startStopButton.className = ""; // return the element with this parameter
+            startStopButton.className = "";
             if (pageLanguage === "pt-br") {
                 startStopButton.innerHTML = allTranslations.langStart.pt_br.valueOf();
             } else {
@@ -81,35 +88,138 @@ function startStop() {
         //test is not running, begin
         let startStopBtn = I("startStopBtn");
         startStopBtn.className = "running"; // the button turns into running mode
+        askNotificationPermission();
+
         if (pageLanguage === "pt-br") {
             startStopBtn.innerHTML = allTranslations.langAbort.pt_br.valueOf();
         } else {
             startStopBtn.innerHTML = allTranslations.langAbort.eng.valueOf();
         }
         s.onupdate = function(data) {
-            uiData = data; //on each speedtest update the uiData gets the data
+            uiData = data; //on each speedtest update the uiData gets the data 
+            downloadSpeed = Number(uiData.dlStatus);
+            uploadSpeed = Number(uiData.ulStatus);
         };
         s.onend = function(aborted) {
-            I("startStopBtn").className = "startButton";
+            speedValues.downloadSpeed = downloadSpeed;
+            speedValues.uploadSpeed = uploadSpeed;
+            if (pageClientId !== " ") {
+                speedValues.clientId = pageClientId;
+            }
+            sendSpeedsToHistory(speedValues);
+            getHistory();
+
+            if (darkModePage) {
+                I("startStopBtn").className = "startDarkMode";
+            } else {
+                I("startStopBtn").className = "startButton";
+            }
             if (pageLanguage === "pt-br") {
                 startStopBtn.innerHTML = allTranslations.langStart.pt_br.valueOf();
             } else {
                 startStopBtn.innerHTML = allTranslations.langStart.eng.valueOf();
             }
+
             updateUI(true);
         };
         s.start();
     }
 }
+
+function sendSpeedsToHistory(speeds) {
+    console.log("Donwload speed: " + speeds.downloadSpeed);
+    console.log("Upload speed: " + speeds.uploadSpeed);
+    var http = new XMLHttpRequest();
+    var url = 'http://localhost:8888/saveHistory';
+    http.open('POST', url, true);
+    //Send the proper header information along with the request
+    http.setRequestHeader('Content-type', "application/json;charset=UTF-8");
+    http.onreadystatechange = function() { //Call a function when the state changes.
+        if (http.readyState == 4 && http.status == 200) {
+            var text;
+            if (pageLanguage === "pt-br") {
+                text = 'Speed Test finalizado';
+            } else {
+                text = 'Speed Test has ended';
+            }
+            var notification = new Notification('SpeedTest', { body: text });
+        }
+    }
+    http.send(JSON.stringify(speeds));
+}
+
+function getHistory() {
+    var http = new XMLHttpRequest();
+    var url = 'http://localhost:8888/getHistory';
+    http.open('POST', url, true); //POST BECAUSE WE NEED TO SEND THE ID TO THE SERVER
+    //Send the proper header information along with the request
+    http.setRequestHeader('Content-type', "application/json;charset=UTF-8");
+    http.onreadystatechange = function() { //Call a function when the state changes.
+        if (http.readyState == 4 && http.status == 200) {
+            console.log(http.responseText);
+            valuesToSetInHistory.push(JSON.stringify(http.responseText.split(":")[1]));
+            console.log(valuesToSetInHistory);
+        }
+    }
+    if (pageClientId != " ") {
+        clientIdToGetHistory.clientId = pageClientId;
+        http.send(JSON.stringify(clientIdToGetHistory));
+    } else {
+        http.abort();
+    }
+}
+
+
+
+function checkNotificationPromise() {
+    try {
+        Notification.requestPermission().then();
+    } catch (e) {
+        return false;
+    }
+
+    return true;
+}
+
+function askNotificationPermission() {
+    // function to actually ask the permissions
+    function handlePermission(permission) {
+        // set the button to shown or hidden, depending on what the user answers
+        if (Notification.permission === 'denied' || Notification.permission === 'default') {
+            notificationBtn.style.display = 'block';
+        } else {
+            notificationBtn.style.display = 'none';
+        }
+    }
+
+    // Let's check if the browser supports notifications
+    if (!('Notification' in window)) {
+        console.log("This browser does not support notifications.");
+    } else {
+        if (checkNotificationPromise()) {
+            Notification.requestPermission()
+                .then((permission) => {
+                    handlePermission(permission);
+                })
+        } else {
+            Notification.requestPermission(function(permission) {
+                handlePermission(permission);
+            });
+        }
+    }
+}
+
+
 //this function reads the data sent back by the test and updates the UI
 function updateUI(forced) {
     if (!forced && s.getState() != 3) return;
     if (uiData == null) return;
     var status = uiData.testState;
     I("ip").textContent = uiData.clientIp;
-    I("dlText").textContent = (status == 1 && uiData.dlStatus == 0) ? "..." : format(uiData.dlStatus);
 
+    I("dlText").textContent = (status == 1 && uiData.dlStatus == 0) ? "..." : format(uiData.dlStatus);
     drawMeter(I("dlMeter"), mbpsToAmount(Number(uiData.dlStatus * (status == 1 ? oscillate() : 1))), meterBk, dlColor, Number(uiData.dlProgress), progColor);
+
 
     I("ulText").textContent = (status == 3 && uiData.ulStatus == 0) ? "..." : format(uiData.ulStatus);
     drawMeter(I("ulMeter"), mbpsToAmount(Number(uiData.ulStatus * (status == 3 ? oscillate() : 1))), meterBk, ulColor, Number(uiData.ulProgress), progColor);
@@ -117,6 +227,8 @@ function updateUI(forced) {
     I("pingText").textContent = format(uiData.pingStatus);
     I("jitText").textContent = format(uiData.jitterStatus);
 }
+
+
 
 function oscillate() {
     return 1 + 0.02 * Math.sin(Date.now() / 100);
@@ -166,6 +278,8 @@ for (let index = 0; index < languagesAvaliable.length; index++) { // event liste
         if (pageLanguage == "pt-br") {
             brazilianFlag.style.filter = "saturate(300%)"; //turns brazilian flag as default
             americanFlag.style.filter = "saturate(50%)";
+            let switchButton = I('langDarkMode');
+            switchButton.innerHTML = allTranslations.langDarkMode.pt_br.valueOf();
             let mainTitle = I("mainTitle");
             mainTitle.innerHTML = allTranslations.langSpeedTest.pt_br.valueOf();
             let startStopBtn = I("startStopBtn");
@@ -177,6 +291,8 @@ for (let index = 0; index < languagesAvaliable.length; index++) { // event liste
         } else {
             americanFlag.style.filter = "saturate(300%)"; //turns american flag as default
             brazilianFlag.style.filter = "saturate(50%)";
+            let switchButton = I('langDarkMode');
+            switchButton.innerHTML = allTranslations.langDarkMode.eng.valueOf();
             let mainTitle = I("mainTitle");
             mainTitle.innerHTML = allTranslations.langSpeedTest.eng.valueOf();
             let startStopBtn = I("startStopBtn");
@@ -187,4 +303,64 @@ for (let index = 0; index < languagesAvaliable.length; index++) { // event liste
             historyTitle.innerHTML = allTranslations.langConnectionHistory.eng.valueOf();
         }
     })
+}
+
+//checks dark mode page
+
+var darkModePage = false; //starts the page in light mode
+
+function getDarkModePage() {
+    return darkModePage;
+}
+
+var darkModeSwitch = I("darkModeSwitch");
+darkModeSwitch.addEventListener('change', function() {
+    if (this.checked) {
+        darkModePage = true;
+        let body = document.getElementsByTagName('body')[0];
+        body.className = 'darkModeBody';
+        let link = I('sourceCodeLink');
+        link.style.color = "#eee";
+        let startButton = I('startStopBtn');
+        startButton.className = "startDarkMode";
+
+    } else {
+        darkModePage = false;
+        let body = document.getElementsByTagName('body')[0];
+        body.className = '';
+        let link = I('sourceCodeLink');
+        link.style.color = "";
+        let startButton = I('startStopBtn');
+        startButton.className = "startButton";
+    }
+});
+
+window.onload = function() { //checks if the user has ID to show history
+    var wantHistory = confirm("Deseja receber histórico?");
+    if (wantHistory) {
+        var hasId = confirm("Já possui ID? Caso negativo, cancele");
+        if (hasId) {
+            var inputId = I('clientId');
+            inputId.style.display = "inline-block";
+            var buttonId = I('buttonId');
+            buttonId.style.display = "inline-block";
+            inputId.addEventListener('keyup', function() {
+                pageClientId = inputId.value;
+                console.log(pageClientId);
+            });
+            buttonId.addEventListener('click', function() {
+                console.log("setei ID");
+                setId(pageClientId);
+            })
+        } else {
+            let yourId = Math.floor(Math.random() * 100);
+            alert("Seu ID é: " + yourId);
+            setId(yourId);
+        }
+    }
+}
+
+function setId(clientId) {
+    pageClientId = String(clientId);
+    speedValues.clientId = String(clientId);
 }
