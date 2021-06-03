@@ -2,7 +2,6 @@
     padding: 0;
     margin: 0;
 }
-
 body {
     border: none;
     background: #eee;
@@ -10,41 +9,15 @@ body {
     text-align: center;
     font-family: "Roboto", sans-serif;
 }
-
-.darkModeBody {
+.bodyEscuro {
     background-color: #202020;
     color: #eee;
 }
-
 h1 {
     color: #5a5a5a;
 }
 
-.holdFlags {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1em;
-    padding-top: 1em;
-}
-
-.flags {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.flags img {
-    width: 2.5em;
-    padding: 0.5em;
-    cursor: pointer;
-}
-
-.flags input[type="radio"] {
-    display: none;
-}
-
-#mainTitle {
+#tituloPrincipal {
     margin-bottom: 1em;
 }
 
@@ -67,17 +40,7 @@ h1 {
     cursor: pointer;
 }
 
-
-/*#startStopBtn:before {
-    content: "Start";
-}*/
-
-
-/*#startStopBtn.running:before {
-    content: "Abort";
-}*/
-
-.startButton {
+.botaoNormal {
     display: inline-block;
     margin: 0 auto;
     color: #6060FF;
@@ -93,7 +56,7 @@ h1 {
     box-shadow: 0 0 0 rgba(0, 0, 0, 0.1), inset 0 0 0 rgba(0, 0, 0, 0.1);
 }
 
-.startDarkMode {
+.botaoModoEscuro {
     display: inline-block;
     margin: 0 auto;
     color: #eee;
@@ -109,7 +72,8 @@ h1 {
     box-shadow: 0 0 0 rgba(0, 0, 0, 0.1), inset 0 0 0 rgba(0, 0, 0, 0.1);
 }
 
-.darkMode {
+.modoEscuro {
+    padding-top: 2em;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -121,19 +85,13 @@ h1 {
     width: 60px;
     height: 34px;
 }
-
-
 /* Hide default HTML checkbox */
-
 .switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
-
-
 /* The slider */
-
 .slider {
     position: absolute;
     cursor: pointer;
@@ -145,7 +103,6 @@ h1 {
     -webkit-transition: .4s;
     transition: .4s;
 }
-
 .slider:before {
     position: absolute;
     content: "";
@@ -157,33 +114,25 @@ h1 {
     -webkit-transition: .4s;
     transition: .4s;
 }
-
 input:checked+.slider {
     background-color: #2196F3;
 }
-
 input:focus+.slider {
     box-shadow: 0 0 1px #2196F3;
 }
-
 input:checked+.slider:before {
     -webkit-transform: translateX(26px);
     -ms-transform: translateX(26px);
     transform: translateX(26px);
 }
-
-
 /* Rounded sliders */
-
 .slider.round {
     border-radius: 34px;
 }
-
 .slider.round:before {
     border-radius: 50%;
 }
-
-#testWrapper {
+#englobaTeste {  /* meu id */
     margin-top: 2em;
 }
 
@@ -268,12 +217,12 @@ div.testGroup {
     margin: 0 auto;
 }
 
-#clientId,
-#buttonId {
+#inputIdCliente,
+#botaoSetaId {
     display: none;
 }
 
-.historyTable {
+.tabelaHistorico {
     margin-top: 1.5em;
     margin-bottom: 1.5em;
     display: flex;
@@ -281,12 +230,12 @@ div.testGroup {
     justify-content: center;
 }
 
-.historyTable table {
+.tabelaHistorico table {
     width: 40%;
     border-collapse: collapse;
 }
 
-.historyTable th,
+.tabelaHistorico th,
 td {
     margin: 0;
     padding: 2%;

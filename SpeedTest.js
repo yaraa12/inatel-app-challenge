@@ -43,7 +43,6 @@ Server.get('/garbage', function(req, res) {
             res.write(cache);
         res.end();
     }
-
     if (cache) {
         send();
     } else {
@@ -79,43 +78,43 @@ Server.get('/getIP', function(req, res) {
 });
 
 
-Server.post("/saveHistory", function(req, res) {
-    var donwloadToHistory = "Download Speed: ";
-    var uploadToHistory = "Upload Speed: ";
-    var myData = "";
-    let filename = __dirname + "/public/history.txt";
+Server.post("/salvarHistorico", function(req, res) {
+    var fraseDeDownload = "Download Speed: ";
+    var fraseDeUpload = "Upload Speed: ";
+    var dado = "";
+    let filename = __dirname + "/public/historico.txt";
 
     // This line opens the file as a readable stream
-    myData += fs.readFileSync(filename, { encoding: 'utf8', flag: 'r' });
-    if ((req.body.clientId) !== " ") {
-        fs.writeFileSync(filename, req.body.clientId + "\n" + donwloadToHistory + (req.body.downloadSpeed) + "\n" + uploadToHistory + (req.body.uploadSpeed) + "\n" + myData);
+    dado += fs.readFileSync(filename, { encoding: 'utf8', flag: 'r' });
+    if ((req.body.idCliente) !== " ") {
+        fs.writeFileSync(filename, req.body.idCliente + "\n" + fraseDeDownload + (req.body.velocidadeDownload) + "\n" + fraseDeUpload + (req.body.velocidadeUpload) + "\n" + dado);
     }
     res.send();
 });
 
 
 
-Server.post("/getHistory", function(req, res) {
-    let historyCount = 0;
-    let foundId = false;
-    let historyValues = { historyValues: [] };
-    let filename = __dirname + "/public/history.txt";
+Server.post("/pegaHistorico", function(req, res) {
+    let contaLinhas = 0;
+    let achouId = false;
+    let valoresDeHistorico = { valorDeHistorico: [] };
+    let filename = __dirname + "/public/historico.txt";
     fs.readFileSync(filename, 'utf-8').toString().split(/\r?\n/).forEach(function(line) {
-        if (line == (req.body.clientId)) {
-            foundId = true;
-            historyCount += 1;
-            console.log(line + " server"); //prints the client id
-        } else if (historyCount > 0 && historyCount <= 2) {
+        if (line == (req.body.idDoCliente)) {
+            console.log(req.body.idDoCliente);
+            achouId = true;
+            contaLinhas += 1;
+        } else if (contaLinhas > 0 && contaLinhas <= 2) {
             console.log(line + " server");
-            historyValues.historyValues.push(line.toUpperCase());
-            historyCount += 1;
+            valoresDeHistorico.valorDeHistorico.push(line.toUpperCase());
+            contaLinhas += 1;
         }
     })
-    console.log(JSON.stringify(historyValues));
-    if (foundId) {
-        res.send(historyValues);
+    console.log(JSON.stringify(valoresDeHistorico));
+    if (achouId) {
+        res.send(valoresDeHistorico);
     } else {
-        res.send("Couldn't find id");
+        res.send("Não achou um ID válido");
     }
 
 });

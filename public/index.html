@@ -13,36 +13,20 @@
 
 <body>
 
-    <div class="languages">
-        <div class="holdFlags">
-            <div class="flags">
-                <label for="brazilianFlag">
-					<img src="images/brazilianFlag.png" alt="Brazilian flag" id="brazilianFlagImage"/>			
-				</label>
-                <input type="radio" value="pt-br" class="selectFlags " name="flags" id="brazilianFlag" checked>
-            </div>
-            <div class="flags">
-                <label for="americanFlag">
-					<img src="images/americanFlag.png" alt="American flag" id="americanFlagImage">				
-				</label>
-                <input type="radio" value="eng" class="selectFlags" name="flags" id="americanFlag">
-            </div>
-        </div>
-    </div>
-
-    <div class="darkMode">
+    <div class="modoEscuro">
         <span id="langDarkMode">Modo Escuro</span>
         <div class="holdsSwitch">
             <label class="switch">
-                <input type="checkbox" id="darkModeSwitch">
+                <input type="checkbox" id="trocaModo">
                 <span class="slider round"></span>
               </label>
         </div>
     </div>
 
-    <div id="testWrapper">
-        <h1 id="mainTitle">Teste de Velocidade</h1>
-        <div id="startStopBtn" onclick="startStop()" class="startButton">Iniciar</div>
+
+    <div id="englobaTeste">
+        <h1 id="tituloPrincipal">Teste de Velocidade</h1>
+        <div id="startStopBtn" onclick="startStop()" class="botaoNormal">Iniciar</div>
         <div id="test">
             <div class="testGroup">
                 <div class="testArea2">
@@ -75,19 +59,21 @@
             </div>
         </div>
 
-        <div class="holdsClientId">
-            <input type="text" name="clientId" id="clientId" placeholder="Digite o seu ID">
-            <button id="buttonId">Set Id</button>
+
+
+        <div class="seguraClientes">
+            <input type="text" name="inputIdCliente" id="inputIdCliente" placeholder="Digite o seu ID">
+            <button id="botaoSetaId">Set Id</button>
         </div>
         <div class="speedHistory">
-            <h2 id="historyTitle">Histórico de Conexão</h2>
-            <div class="historyTable">
-                <table id="showHistory">
+            <h2 >Histórico de Conexão</h2>
+            <div class="tabelaHistorico">
+                <table id="mostraHistorico">
                     <tr>
                         <th>Dowload</th>
                         <th>Upload</th>
                     </tr>
-                    <tr id="historyValuesParent">
+                    <tr>
                     </tr>
                 </table>
             </div>
@@ -95,11 +81,10 @@
 
         <footer>
             <div class="footer">
-                <a href="https://github.com/librespeed/speedtest" id="sourceCodeLink">Código fonte</a>
+                <a href="https://github.com/librespeed/speedtest" id="textoDeLink">Código fonte</a>
             </div>
         </footer>
     </div>
-    <script type="text/javascript" src="languages.js"></script>
     <script type="text/javascript" src="pageScripts.js"></script>
 </body>
 

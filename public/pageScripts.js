@@ -6,12 +6,12 @@ var dlColor = "#6060AA",
     ulColor = "#616161";
 var progColor = meterBk;
 
-var speedValues = { downloadSpeed: "", uploadSpeed: "", clientId: " " };
-var clientIdToGetHistory = { clientId: "" };
-var downloadSpeed;
-var uploadSpeed;
-var pageClientId = " ";
-var valuesToSetInHistory = [];
+var objetoDeHistorico = { velocidadeDownload: "", velocidadeUpload: "", idCliente: " " };
+var clienteParaPegarHistorico = { idDoCliente: "" };
+var velocidadeDownload;
+var velocidadeUpload;
+var idPagina = " ";
+var valoresParaSetarNoHistorico = [];
 
 function I(i) {
     return document.getElementById(i);
@@ -66,129 +66,95 @@ function startStop() {
         //speedtest is running, abort
         s.abort();
         data = null;
-        if (darkModePage) {
-            let startStopButton = I("startStopBtn");
-            startStopButton.className = "startDarkMode";
-            if (pageLanguage === "pt-br") {
-                startStopButton.innerHTML = allTranslations.langStart.pt_br.valueOf();
-            } else {
-                startStopButton.innerHTML = allTranslations.langStart.eng.valueOf();
-            }
+        if (paginaEscura) {
+            let botaoIniciar = I("startStopBtn");
+            botaoIniciar.className = "botaoModoEscuro";            
         } else {
-            let startStopButton = I("startStopBtn");
-            startStopButton.className = "";
-            if (pageLanguage === "pt-br") {
-                startStopButton.innerHTML = allTranslations.langStart.pt_br.valueOf();
-            } else {
-                startStopButton.innerHTML = allTranslations.langStart.eng.valueOf();
-            }
+            let botaoIniciar = I("startStopBtn");
+            botaoIniciar.className = "";            
         }
+        botaoIniciar.innerHTML = "Iniciar";
         initUI();
     } else {
         //test is not running, begin
-        let startStopBtn = I("startStopBtn");
-        startStopBtn.className = "running"; // the button turns into running mode
+        let botaoIniciar = I("startStopBtn");
+        botaoIniciar.className = "running"; // the button turns into running mode
+        botaoIniciar.innerHTML = "Parar";
         askNotificationPermission();
-
-        if (pageLanguage === "pt-br") {
-            startStopBtn.innerHTML = allTranslations.langAbort.pt_br.valueOf();
-        } else {
-            startStopBtn.innerHTML = allTranslations.langAbort.eng.valueOf();
-        }
         s.onupdate = function(data) {
             uiData = data; //on each speedtest update the uiData gets the data 
-            downloadSpeed = Number(uiData.dlStatus);
-            uploadSpeed = Number(uiData.ulStatus);
+            velocidadeDownload = Number(uiData.dlStatus);
+            velocidadeUpload = Number(uiData.ulStatus);
         };
         s.onend = function(aborted) {
-            speedValues.downloadSpeed = downloadSpeed;
-            speedValues.uploadSpeed = uploadSpeed;
-            if (pageClientId !== " ") {
-                speedValues.clientId = pageClientId;
+            objetoDeHistorico.velocidadeDownload = velocidadeDownload;
+            objetoDeHistorico.velocidadeUpload = velocidadeUpload;
+            if (idPagina !== " ") {
+                objetoDeHistorico.idCliente = idPagina;
             }
-            sendSpeedsToHistory(speedValues);
-            getHistory();
+            enviaOsDadosParaHistorico(objetoDeHistorico);
+            pegaHistorico();
 
-            if (darkModePage) {
-                I("startStopBtn").className = "startDarkMode";
+            if (paginaEscura) {
+                I("startStopBtn").className = "botaoModoEscuro";
             } else {
-                I("startStopBtn").className = "startButton";
+                I("startStopBtn").className = "botaoNormal";
             }
-            if (pageLanguage === "pt-br") {
-                startStopBtn.innerHTML = allTranslations.langStart.pt_br.valueOf();
-            } else {
-                startStopBtn.innerHTML = allTranslations.langStart.eng.valueOf();
-            }
-
+            botaoIniciar.innerHTML = "Iniciar";
+           
             updateUI(true);
         };
         s.start();
     }
 }
 
-function sendSpeedsToHistory(speeds) {
-    console.log("Donwload speed: " + speeds.downloadSpeed);
-    console.log("Upload speed: " + speeds.uploadSpeed);
+function enviaOsDadosParaHistorico(velocidades) {
     var http = new XMLHttpRequest();
-    var url = 'http://localhost:8888/saveHistory';
+    var url = 'http://localhost:8888/salvarHistorico';
     http.open('POST', url, true);
     //Send the proper header information along with the request
     http.setRequestHeader('Content-type', "application/json;charset=UTF-8");
     http.onreadystatechange = function() { //Call a function when the state changes.
         if (http.readyState == 4 && http.status == 200) {
-            var text;
-            if (pageLanguage === "pt-br") {
-                text = 'Speed Test finalizado';
-            } else {
-                text = 'Speed Test has ended';
-            }
+            var text = "Speedtest Finalizado";
             var notification = new Notification('SpeedTest', { body: text });
         }
     }
-    http.send(JSON.stringify(speeds));
+    http.send(JSON.stringify(velocidades));
 }
 
-function getHistory() {
+function pegaHistorico() {
     var http = new XMLHttpRequest();
-    var url = 'http://localhost:8888/getHistory';
+    var url = 'http://localhost:8888/pegaHistorico';
     http.open('POST', url, true); //POST BECAUSE WE NEED TO SEND THE ID TO THE SERVER
     //Send the proper header information along with the request
     http.setRequestHeader('Content-type', "application/json;charset=UTF-8");
     http.onreadystatechange = function() { //Call a function when the state changes.
         if (http.readyState == 4 && http.status == 200) {
-            console.log(http.responseText + " da resposta");
-            if (http.responseText == "Couldn't find id") {
-                if (pageLanguage == "pt-br") {
-                    alert("Não há um ID compatível")
-                } else {
-                    alert("This ID doesn't exist");
-                }
+            if (http.responseText == "Não achou um ID válido") {
+                alert("Não achou um ID válido");
             } else {
-                let downloadValueToDisplay = JSON.stringify(http.responseText.split(":")[2].split(",")[0]);
-                let uploadValueToDisplay = JSON.stringify(http.responseText.split(":")[3]);
-                downloadValueToDisplay = downloadValueToDisplay.split('"')[1].replace(/\\/, " ");
-                uploadValueToDisplay = uploadValueToDisplay.split('"')[1].replace(/\\/, " ");
-                var historyParent = document.getElementById("showHistory");
-                var newRow = document.createElement('tr');
-                var newDownloadTd = document.createElement('td');
-                var newUploadTd = document.createElement('td');
-                newDownloadTd.innerHTML = downloadValueToDisplay;
-                newUploadTd.innerHTML = uploadValueToDisplay;
-                historyParent.appendChild(newRow);
-                newRow.appendChild(newDownloadTd);
-                newRow.appendChild(newUploadTd);
+                let downloadParaMostrar = JSON.stringify(http.responseText.split(":")[2].split(",")[0]);
+                let uploadParaMostrar = JSON.stringify(http.responseText.split(":")[3]);
+                downloadParaMostrar = downloadParaMostrar.split('"')[1].replace(/\\/, " ");
+                uploadParaMostrar = uploadParaMostrar.split('"')[1].replace(/\\/, " ");
+                var historicoPai = document.getElementById("mostraHistorico");
+                var novaLinha = document.createElement('tr');
+                var downloadtd = document.createElement('td');
+                var uploadTd = document.createElement('td');
+                downloadtd.innerHTML = downloadParaMostrar;
+                uploadTd.innerHTML = uploadParaMostrar;
+                historicoPai.appendChild(novaLinha);
+                novaLinha.appendChild(downloadtd);
+                novaLinha.appendChild(uploadTd);
             }
         }
     }
-    if (pageClientId != " ") {
-        clientIdToGetHistory.clientId = pageClientId;
-        http.send(JSON.stringify(clientIdToGetHistory));
+    if (idPagina != " ") {
+        clienteParaPegarHistorico.idDoCliente = idPagina;
+        http.send(JSON.stringify(clienteParaPegarHistorico));
     } else {
-        if (pageLanguage == "pt-br") {
-            alert("Histórico não computado pois não foi digitado um ID")
-        } else {
-            alert("History not computed because no ID was typed");
-        }
+        alert("Seu histórico não foi salvo pois um ID não estava inserido na página")
         http.abort();
     }
 }
@@ -284,112 +250,66 @@ setTimeout(function() {
 
 
 
-//start the page translation
-
-var languagesAvaliable = document.getElementsByName('flags'); //languages avaliable in the page
-
-var allTranslations = getLanguages(); //getes the translations int the languages script
-var pageLanguage = "pt-br"; // initializes the page in pt-br
-
-var brazilianFlag = document.getElementById("brazilianFlagImage"); //gets the brazilian flag
-brazilianFlag.style.filter = "saturate(300%)"; //makes it visible default
-var americanFlag = document.getElementById("americanFlagImage"); //gets the american flag
-americanFlag.style.filter = "saturate(50%)";
-
-for (let index = 0; index < languagesAvaliable.length; index++) { // event lister to check the page language
-    languagesAvaliable[index].addEventListener("change", function() { //checks for user language
-        pageLanguage = languagesAvaliable[index].value;
-        if (pageLanguage == "pt-br") {
-            brazilianFlag.style.filter = "saturate(300%)"; //turns brazilian flag as default
-            americanFlag.style.filter = "saturate(50%)";
-            let switchButton = I('langDarkMode');
-            switchButton.innerHTML = allTranslations.langDarkMode.pt_br.valueOf();
-            let mainTitle = I("mainTitle");
-            mainTitle.innerHTML = allTranslations.langSpeedTest.pt_br.valueOf();
-            let startStopBtn = I("startStopBtn");
-            startStopBtn.innerHTML = allTranslations.langStart.pt_br.valueOf(); //on opening the page translates the button
-            let sourceCodeLink = I("sourceCodeLink");
-            sourceCodeLink.innerHTML = allTranslations.langSourceCode.pt_br.valueOf(); //translates the source code link
-            let historyTitle = I("historyTitle");
-            historyTitle.innerHTML = allTranslations.langConnectionHistory.pt_br.valueOf();
-        } else {
-            americanFlag.style.filter = "saturate(300%)"; //turns american flag as default
-            brazilianFlag.style.filter = "saturate(50%)";
-            let switchButton = I('langDarkMode');
-            switchButton.innerHTML = allTranslations.langDarkMode.eng.valueOf();
-            let mainTitle = I("mainTitle");
-            mainTitle.innerHTML = allTranslations.langSpeedTest.eng.valueOf();
-            let startStopBtn = I("startStopBtn");
-            startStopBtn.innerHTML = allTranslations.langStart.eng.valueOf(); //on opening the page
-            let sourceCodeLink = I("sourceCodeLink");
-            sourceCodeLink.innerHTML = allTranslations.langSourceCode.eng.valueOf();
-            let historyTitle = I("historyTitle");
-            historyTitle.innerHTML = allTranslations.langConnectionHistory.eng.valueOf();
-        }
-    })
-}
-
 //checks dark mode page
 
-var darkModePage = false; //starts the page in light mode
+var paginaEscura = false; //starts the page in light mode
 
-function getDarkModePage() {
-    return darkModePage;
+function pegaModoDaPagina() {
+    return paginaEscura;
 }
 
-var darkModeSwitch = I("darkModeSwitch");
-darkModeSwitch.addEventListener('change', function() {
+var trocaModo = I("trocaModo");
+trocaModo.addEventListener('change', function() {
     if (this.checked) {
-        darkModePage = true;
+        paginaEscura = true;
         let body = document.getElementsByTagName('body')[0];
-        body.className = 'darkModeBody';
-        let link = I('sourceCodeLink');
+        body.className = 'bodyEscuro';
+        let link = I('textoDeLink');
         link.style.color = "#eee";
-        let startButton = I('startStopBtn');
-        startButton.className = "startDarkMode";
+        let botaoIniciar = I('startStopBtn');
+        botaoIniciar.className = "botaoModoEscuro";
 
     } else {
-        darkModePage = false;
+        paginaEscura = false;
         let body = document.getElementsByTagName('body')[0];
         body.className = '';
-        let link = I('sourceCodeLink');
+        let link = I('textoDeLink');
         link.style.color = "";
-        let startButton = I('startStopBtn');
-        startButton.className = "startButton";
+        let botaoIniciar = I('startStopBtn');
+        botaoIniciar.className = "botaoNormal";
     }
 });
 
 window.onload = function() { //checks if the user has ID to show history
-    var wantHistory = confirm("Deseja receber histórico?");
-    if (wantHistory) {
-        var hasId = confirm("Já possui ID? Caso negativo, cancele");
-        if (hasId) {
-            var inputId = I('clientId');
-            inputId.style.display = "inline-block";
-            var buttonId = I('buttonId');
-            buttonId.style.display = "inline-block";
-            inputId.addEventListener('keyup', function() {
-                pageClientId = inputId.value;
-                console.log(pageClientId);
+    var querHistorico = confirm("Deseja receber histórico?");
+    if (querHistorico) {
+        var temId = confirm("Já possui ID? Caso negativo, cancele");
+        if (temId) {
+            var idInput = I('inputIdCliente');
+            idInput.style.display = "inline-block";
+            var botaoSetaId = I('botaoSetaId');
+            botaoSetaId.style.display = "inline-block";
+
+            idInput.addEventListener('keyup', function() {
+                idPagina = idInput.value;
             });
-            buttonId.addEventListener('click', function() {
-                if (pageClientId == " ") {
+            botaoSetaId.addEventListener('click', function() {
+                if (idPagina == " ") {
                     alert("Digite um ID")
                 } else {
-                    console.log("setei ID");
-                    setId(pageClientId);
-                    getHistory(pageClientId);
+                    setId(idPagina);
+                    pegaHistorico();
                 }
             })
         } else {
-            let yourId = Math.floor(Math.random() * 100);
-            alert("Seu ID é: " + yourId);
-            setId(yourId);
+            let seuId = Math.floor(Math.random() * 100);
+            alert("Seu ID é: " + seuId);
+            setId(seuId);
         }
     }
 }
 
-function setId(clientId) {
-    pageClientId = String(clientId);
-    speedValues.clientId = String(clientId);
+function setId(idCliente) {
+    idPagina = String(idCliente);
+    objetoDeHistorico.idCliente = String(idCliente);
 }
