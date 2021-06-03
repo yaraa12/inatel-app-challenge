@@ -157,24 +157,38 @@ function getHistory() {
     http.onreadystatechange = function() { //Call a function when the state changes.
         if (http.readyState == 4 && http.status == 200) {
             console.log(http.responseText + " da resposta");
-            let downloadValueToDisplay = JSON.stringify(http.responseText.split(":")[2].split(",")[0]);
-            let uploadValueToDisplay = JSON.stringify(http.responseText.split(":")[3]);
-
-            var historyParent = document.getElementById("showHistory");
-            var newRow = document.createElement('tr');
-            var newDownloadTd = document.createElement('td');
-            var newUploadTd = document.createElement('td');
-            newDownloadTd.innerHTML = downloadValueToDisplay;
-            newUploadTd.innerHTML = uploadValueToDisplay;
-            historyParent.appendChild(newRow);
-            newRow.appendChild(newDownloadTd);
-            newRow.appendChild(newUploadTd);
+            if (http.responseText == "Couldn't find id") {
+                if (pageLanguage == "pt-br") {
+                    alert("Não há um ID compatível")
+                } else {
+                    alert("This ID doesn't exist");
+                }
+            } else {
+                let downloadValueToDisplay = JSON.stringify(http.responseText.split(":")[2].split(",")[0]);
+                let uploadValueToDisplay = JSON.stringify(http.responseText.split(":")[3]);
+                downloadValueToDisplay = downloadValueToDisplay.split('"')[1].replace(/\\/, " ");
+                uploadValueToDisplay = uploadValueToDisplay.split('"')[1].replace(/\\/, " ");
+                var historyParent = document.getElementById("showHistory");
+                var newRow = document.createElement('tr');
+                var newDownloadTd = document.createElement('td');
+                var newUploadTd = document.createElement('td');
+                newDownloadTd.innerHTML = downloadValueToDisplay;
+                newUploadTd.innerHTML = uploadValueToDisplay;
+                historyParent.appendChild(newRow);
+                newRow.appendChild(newDownloadTd);
+                newRow.appendChild(newUploadTd);
+            }
         }
     }
     if (pageClientId != " ") {
         clientIdToGetHistory.clientId = pageClientId;
         http.send(JSON.stringify(clientIdToGetHistory));
     } else {
+        if (pageLanguage == "pt-br") {
+            alert("Histórico não computado pois não foi digitado um ID")
+        } else {
+            alert("History not computed because no ID was typed");
+        }
         http.abort();
     }
 }

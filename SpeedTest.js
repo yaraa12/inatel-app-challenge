@@ -97,10 +97,12 @@ Server.post("/saveHistory", function(req, res) {
 
 Server.post("/getHistory", function(req, res) {
     let historyCount = 0;
+    let foundId = false;
     let historyValues = { historyValues: [] };
     let filename = __dirname + "/public/history.txt";
     fs.readFileSync(filename, 'utf-8').toString().split(/\r?\n/).forEach(function(line) {
         if (line == (req.body.clientId)) {
+            foundId = true;
             historyCount += 1;
             console.log(line + " server"); //prints the client id
         } else if (historyCount > 0 && historyCount <= 2) {
@@ -110,7 +112,12 @@ Server.post("/getHistory", function(req, res) {
         }
     })
     console.log(JSON.stringify(historyValues));
-    res.send(historyValues);
+    if (foundId) {
+        res.send(historyValues);
+    } else {
+        res.send("Couldn't find id");
+    }
+
 });
 
 Server.use(express.static(path.join(__dirname, 'public')));
