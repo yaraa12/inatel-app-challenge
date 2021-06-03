@@ -100,12 +100,11 @@ Server.post("/getHistory", function(req, res) {
     let historyValues = { historyValues: [] };
     let filename = __dirname + "/public/history.txt";
     fs.readFileSync(filename, 'utf-8').toString().split(/\r?\n/).forEach(function(line) {
-
         if (line == (req.body.clientId)) {
             historyCount += 1;
-            console.log(line);
-        } else if (historyCount > 0 && historyCount <= 3) {
-            console.log(line);
+            console.log(line + " server"); //prints the client id
+        } else if (historyCount > 0 && historyCount <= 2) {
+            console.log(line + " server");
             historyValues.historyValues.push(line.toUpperCase());
             historyCount += 1;
         }

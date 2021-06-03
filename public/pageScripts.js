@@ -156,9 +156,19 @@ function getHistory() {
     http.setRequestHeader('Content-type', "application/json;charset=UTF-8");
     http.onreadystatechange = function() { //Call a function when the state changes.
         if (http.readyState == 4 && http.status == 200) {
-            console.log(http.responseText);
-            valuesToSetInHistory.push(JSON.stringify(http.responseText.split(":")[1]));
-            console.log(valuesToSetInHistory);
+            console.log(http.responseText + " da resposta");
+            let downloadValueToDisplay = JSON.stringify(http.responseText.split(":")[2].split(",")[0]);
+            let uploadValueToDisplay = JSON.stringify(http.responseText.split(":")[3]);
+
+            var historyParent = document.getElementById("showHistory");
+            var newRow = document.createElement('tr');
+            var newDownloadTd = document.createElement('td');
+            var newUploadTd = document.createElement('td');
+            newDownloadTd.innerHTML = downloadValueToDisplay;
+            newUploadTd.innerHTML = uploadValueToDisplay;
+            historyParent.appendChild(newRow);
+            newRow.appendChild(newDownloadTd);
+            newRow.appendChild(newUploadTd);
         }
     }
     if (pageClientId != " ") {
@@ -349,8 +359,13 @@ window.onload = function() { //checks if the user has ID to show history
                 console.log(pageClientId);
             });
             buttonId.addEventListener('click', function() {
-                console.log("setei ID");
-                setId(pageClientId);
+                if (pageClientId == " ") {
+                    alert("Digite um ID")
+                } else {
+                    console.log("setei ID");
+                    setId(pageClientId);
+                    getHistory(pageClientId);
+                }
             })
         } else {
             let yourId = Math.floor(Math.random() * 100);
